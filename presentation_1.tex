@@ -1,0 +1,332 @@
+% ---------------------------------------------------------------------------- %
+%																		       %
+% 	         Title: Introduction to the Adaptive framework					   %
+%           Author: Nuno Borges Loureiro Alves de Sousa					       %
+%	          Date: February 2019		       							       %
+%																		       %
+%           --------------------------------------------------                 %
+%																		       %
+%			E-mail: nunoalvesdesousa@me.com (main)						       %
+%					nunoalvesdesousa@tecnico.ulisbboa.pt				       %
+%			 Phone: (+351) 915 547 571									       %
+%																		       %
+% ---------------------------------------------------------------------------- %
+
+% ---------------------------------------------------------------------------- %
+% Preamble
+% ---------------------------------------------------------------------------- %
+
+\documentclass{beamer}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+
+\usepackage[whitebg, frametitlelogo]{beamerthemeLisboa}
+
+% Quotations
+\usepackage{csquotes}
+\usepackage{attrib}
+
+% Custom command for descriptions
+\newcommand{\dindent}{\hspace{15pt}} 		 % default indentation
+\newcommand{\bitem}[1][]{\item[\textbf{#1}]} % bold item
+
+% Enumeration symbols
+\newcommand{\itemd}{\item[-]}
+
+% Code listings
+\usepackage{sourcecodepro} % Nice monospaced font
+\usepackage{relsize}	   % More granular control over font size
+
+\colorlet{DarkGreen}{green!50!black} % Comment color
+\colorlet{FunctionColor}{cyan} % Comment color
+\definecolor{MemberColor}{rgb}{0.6, 0.4, 0.8}
+
+\usepackage{listings}
+\usepackage{lstlinebgrd}
+
+\lstset{
+	%	language=[ISO]C++,	
+	%	showstringspaces=false,
+	numbers=left, linebackgroundheight=0.90\baselineskip,
+	numbersep=10pt,
+	numberstyle=\tiny,
+	frame=tb,
+	xleftmargin=0.06\textwidth, xrightmargin=0.06\textwidth,
+	literate={ov=}{{{\bfseries\color{magenta}=}}}1
+	{ov+}{{{\bfseries\color{magenta}+}}}1
+	{ov*}{{{\bfseries\color{magenta}*}}}1,
+	otherkeywords={\&}
+	%	morecomment=[l][\bfseries\color{magenta}]{\#}
+}
+
+\lstdefinestyle{myCpp}
+{
+	language=[ISO]C++,
+	basicstyle=\ttfamily\scriptsize\relscale{0.90},
+	showstringspaces=false,
+	keywordstyle=\bfseries\color{blue},
+	linebackgroundcolor={\ifodd\value{lstnumber}\color{istblue!10}\else\color{gray!5}\fi},
+	stringstyle=\color{red},
+	commentstyle=\slshape\color{DarkGreen},
+	emph={CblasColMajor,CblasTrans}, emphstyle=\color{MemberColor},
+	literate={ov=}{{{\bfseries\color{magenta}=}}}1
+	{ov+}{{{\bfseries\color{magenta}+}}}1
+	{ov*}{{{\bfseries\color{magenta}*}}}1,
+	keywordstyle=[2]{\color{blue}},
+	otherkeywords={\&, ;},
+	morekeywords=[2]{;}
+}
+
+\lstset{
+	style = myCpp
+}
+
+% Centered block with variable width
+\usepackage{tikz}
+\usepackage{pgfplots}
+
+% ---------------------------------------------------------------------------- %
+% Outline
+% ---------------------------------------------------------------------------- %
+
+\AtBeginSection[]{
+	\frame{
+		\frametitle{Outline}
+		\tableofcontents[current, hideallsubsections]
+	}
+}
+
+\AtBeginSubsection[]{
+	\frame{
+		\frametitle{Outline}
+		\tableofcontents[currentsection, currentsubsection]
+	}
+}
+
+% ---------------------------------------------------------------------------- %
+% Cover
+% ---------------------------------------------------------------------------- %
+
+\title{The Adaptiv Framework}
+\author{Nuno Alves de Sousa}
+\institute{
+	Instituto Superior Técnico\\
+	\tiny Área Científica de Mecânica Aplicada e Aeroespacial
+}
+\date{\today}
+
+\begin{document}
+	
+\begin{frame}[plain]
+	\vspace{2.0cm}
+	\centering
+	\includegraphics[keepaspectratio=true, height=2cm]{figures/adaptive.png}
+	\vspace{0.75cm}
+	\titlepage
+\end{frame}
+
+% ---------------------------------------------------------------------------- %
+% Slides
+% ---------------------------------------------------------------------------- %
+
+\section{Best coding practices}
+\subsection{Software quality}
+
+\begin{frame}{Attributes of good software}
+	\begin{quote}
+		\enquote{Software and cathedrals are much the same – first we build them, then we pray.}\\
+		\attrib{Anonymous}
+	\end{quote}
+
+%	\begin{quote}
+%		\enquote{Without requirements or design, programming is the art of adding bugs to an empty text file.}\\
+%		\attrib{Louis Srygley}
+%	\end{quote}
+\end{frame}
+
+\begin{frame}{Attributes of good software}
+	Not \structure{\textit{what}} the program does, but \structure{\textit{how well}} it does it:
+	\vspace{1\baselineskip}
+	\begin{description}[\dindent Maintainability]
+		\bitem[Maintainability] reduce/reverse \enquote{code entropy} \\
+								cheaper/safer to change than to rewrite
+		\bitem[Dependability] availability, reliability, safety, integrity
+		\bitem[Efficiency] algorithmic efficiency\\
+						   storage efficiency
+		\bitem[Usability] \enquote{consumer} effectiveness and efficiency\\
+						  elegance and clarity perceived by the user
+	\end{description}
+\end{frame}
+
+\subsection{Prerequisites}
+\begin{frame}{Where to start?}
+	\begin{quote}
+		\enquote{What happens before one gets to the coding stage is often of crucial importance to the success of the project.}
+		\attrib{Meek \& Heath - Guide to Good Programming Practice}
+	\end{quote}
+	\vspace{1\baselineskip}
+	Higher-level prerequisites to provide a solid foundation for coding:
+	\begin{itemize}
+		\item Coding standards
+		\item Choice of programming language
+		\item Life cycle, architecture, design
+		\item \alert{Requirements}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Coding standards}
+	Coding conventions are particularly important in collaborative projects:
+	\begin{itemize}
+		\item Much easier to read someone else's code
+		\item Uniform style (\textit{e.g.} naming conventions for filenames, variables, etc)
+		\item Deal with undereducated programmers
+		\item Avoid insufficient library use
+		\item Portability
+		\item Commenting conventions:
+			\begin{itemize}
+				\itemd Speed up knowledge transfer
+				\itemd Comment only what code expresses poorly (intent)
+				\itemd Comments lie, code never lies
+				\itemd Do not comment code modifications (use a \structure{version control system})
+			\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Version control}
+	\structure{Source code} is the most valuable asset of any software project
+	\begin{block}{Version control systems (VCS)}
+		\begin{itemize}
+			\item Management of changes to all non-binary files
+			\item Complete retrace of all versions of each file
+			\item History of the authors of such changes
+		\end{itemize}
+	\end{block} 
+	
+	\begin{exampleblock}{Critical advantages}
+		\begin{itemize}
+			\item Rollback of all tracked changes
+			\item Work in an isolated fashion
+			\item Seamless team collaboration
+			\item Efficient and flexible scaleability
+		\end{itemize}
+	\end{exampleblock}
+\end{frame}
+
+\begin{frame}{git - the world's leading version control system}
+	\begin{columns}[onlytextwidth]
+		\column{0.5\linewidth}
+		\begin{center}
+			\hspace{-1.7cm}
+			\includegraphics[keepaspectratio=true, width=0.45\linewidth]{figures/git.png}
+		\end{center}
+		Why git?
+		\begin{itemize}
+			\item Free and open-source
+			\item Small and fast
+			\item Encourages branching
+			\item Distributed
+			\item Built-in IDE support
+		\end{itemize}
+		As a service:
+		\begin{itemize}
+			\item Source code hosting
+			\item Code sharing platform
+			\item GitHub, GitLab, etc.
+		\end{itemize}
+		\column{0.5\linewidth}
+		\includegraphics[keepaspectratio=true, width=0.95\linewidth]{figures/github.png}
+	\end{columns}
+\end{frame}
+
+\begin{frame}{Choice of programming language}
+	C++ (hard, lack of knowledge, modern features)\\
+	Use good well tested libraries (boost) - portability
+\end{frame}
+
+\begin{frame}{WIP}
+	Life cycle, architecture, design all depend on the \alert{requirements}
+\end{frame}
+
+\subsection{Code development}
+\begin{frame}{Build system}
+	\begin{columns}[onlytextwidth]
+		\column{0.65\linewidth}
+		\begin{itemize}
+			\item Open-source, cross-platform set of tools to build, test and package software.
+			\item Controls compilation process using platform and compiler independent config. files
+		\end{itemize}
+		\column{0.30\linewidth}
+		\includegraphics[keepaspectratio=true, width=1\linewidth]{figures/cmake.png}
+	\end{columns}
+	\vspace{1\baselineskip}
+	\begin{quote}
+		\centering
+		\structure{The defacto standard for building C++ projects}
+	\end{quote}
+	\begin{exampleblock}{Advantages}
+		\begin{itemize}
+			\item More time for coding
+			\item Supported by most popular IDEs (\textit{e.g.} VS, JetBrains, QtCreator)
+			\item Support for multiple compilers (\textit{e.g.} MSVC, GCC, Clang, Intel)
+			\item Easy integration of 3rd party libraries
+		\end{itemize}
+	\end{exampleblock}	  
+\end{frame}
+
+\begin{frame}{Testing}
+	content...
+\end{frame}
+
+\begin{frame}{Benchmarking}
+	content...
+\end{frame}
+
+\section{Concepts Library}
+
+\section{Linear Algebra Library}
+
+\begin{frame}[fragile]{Interface elegance \textit{vs} code efficiency}
+	Level 3 BLAS operations $T(n) = O(n^3)$\\
+	Example:
+	\begin{equation}
+		C \leftarrow \alpha A^T B^T + \beta C
+	\end{equation}
+	Desired interface:
+	\lstinputlisting{code/dgemm.cpp}
+\end{frame}
+
+\begin{frame}[fragile]{Interface elegance \textit{vs} code efficiency}
+	For an efficient implementation, the statement
+	\lstinputlisting[linerange=12-12, firstnumber=12]{code/dgemm.cpp}
+	should be translated into a call to the specialized CBLAS function:
+	\lstinputlisting[linerange=12-18, firstnumber=12]{code/cblas_dgemm.cpp}
+	Overhead: \\
+	\begin{center}
+		\textcolor{DarkGreen}{\textbf{1}} function call\\
+		\textcolor{DarkGreen}{\textbf{0}} temporaries
+	\end{center}
+\end{frame}
+
+\begin{frame}{Conventional operator overloading}
+	Due to the normal order of evaluation of the C++ language,
+	\lstinputlisting[linerange=12-12, firstnumber=12]{code/dgemm.cpp}
+	
+	actually generates:
+	\lstinputlisting[firstline=9, firstnumber=9]{code/operator_dgemm.cpp}
+\end{frame}
+
+\begin{frame}{Conventional operator overloading}
+	Overhead: \\
+	\begin{center}
+		\textcolor{red}{\textbf{7+}} function calls\\
+		\textcolor{red}{\textbf{6}} temporaries
+	\end{center}
+\end{frame}
+
+\begin{frame}{Performance comparison}
+	\input{figures/cmatrix_dgemm.tex}
+\end{frame}
+
+\end{document}
