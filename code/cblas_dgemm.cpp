@@ -1,8 +1,8 @@
-#include<matrix.hpp>
+#include <matrix.hpp>
 
 using DMatrix = Matrix<double>;
 
-const double alfa = 42;
+const double alpha = 42;
 const double beta = 1.618
 
 void example() {

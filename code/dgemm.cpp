@@ -1,4 +1,4 @@
-#include<matrix.hpp>
+#include <matrix.hpp>
 
 using DMatrix = Matrix<double>;
 

@@ -39,45 +39,50 @@
 \usepackage{sourcecodepro} % Nice monospaced font
 \usepackage{relsize}	   % More granular control over font size
 
-\colorlet{DarkGreen}{green!50!black} % Comment color
-\colorlet{FunctionColor}{cyan} % Comment color
-\definecolor{MemberColor}{rgb}{0.6, 0.4, 0.8}
+% Light theme
+\definecolor{PreprocessorColor}{RGB}{49, 206, 126}
+\colorlet{DarkGreen}{green!50!black}            % Comment color
+\colorlet{FunctionColor}{cyan}                  % Comment color
+\definecolor{MemberColor}{rgb}{0.6, 0.4, 0.8}   % Member color
 
 \usepackage{listings}
 \usepackage{lstlinebgrd}
 
+% Dimensions
 \lstset{
-	%	language=[ISO]C++,	
-	%	showstringspaces=false,
-	numbers=left, linebackgroundheight=0.90\baselineskip,
-	numbersep=10pt,
-	numberstyle=\tiny,
-	frame=tb,
-	xleftmargin=0.06\textwidth, xrightmargin=0.06\textwidth,
-	literate={ov=}{{{\bfseries\color{magenta}=}}}1
-	{ov+}{{{\bfseries\color{magenta}+}}}1
-	{ov*}{{{\bfseries\color{magenta}*}}}1,
-	otherkeywords={\&}
-	%	morecomment=[l][\bfseries\color{magenta}]{\#}
+	numbers     = left, linebackgroundheight=0.90\baselineskip,
+	numbersep   = 10pt,
+	numberstyle = \tiny,
+	xleftmargin = 0.06\textwidth, xrightmargin=0.06\textwidth
 }
 
 \lstdefinestyle{myCpp}
 {
-	language=[ISO]C++,
-	basicstyle=\ttfamily\scriptsize\relscale{0.90},
-	showstringspaces=false,
-	keywordstyle=\bfseries\color{blue},
-	linebackgroundcolor={\ifodd\value{lstnumber}\color{istblue!10}\else\color{gray!5}\fi},
-	stringstyle=\color{red},
-	commentstyle=\slshape\color{DarkGreen},
-	emph={CblasColMajor,CblasTrans}, emphstyle=\color{MemberColor},
-	literate={ov=}{{{\bfseries\color{magenta}=}}}1
-	{ov+}{{{\bfseries\color{magenta}+}}}1
-	{ov*}{{{\bfseries\color{magenta}*}}}1,
-	keywordstyle=[2]{\color{blue}},
-	otherkeywords={\&, ;},
-	morekeywords=[2]{;}
+	language            = [ISO]C++,
+	basicstyle          = \ttfamily\scriptsize\relscale{0.90},
+	showstringspaces    = false,
+	keywordstyle        = \bfseries\color{blue},
+	stringstyle         = \color{red},
+	commentstyle        = \itshape\color{DarkGreen},
+    % MKL keywords
+	emph                = {CblasColMajor,CblasTrans}, 
+    emphstyle           = \color{MemberColor},
+    % Preprocessor directives
+    directivestyle      = \bfseries\color{PreprocessorColor},
+    % Overloaded operators
+	literate            = {ov=}{{{\bfseries\color{magenta}=}}}1
+	                      {ov+}{{{\bfseries\color{magenta}+}}}1
+	                      {ov*}{{{\bfseries\color{magenta}*}}}1,
+	keywordstyle        = [2]{\color{brown}},
+	otherkeywords       = {\&, ;, ::},
+	morekeywords        = [2]{;, ::},
+    linebackgroundcolor = {\ifodd\value{lstnumber}\color{istblue!10}
+                           \else\color{gray!5}\fi},
+    frame               = tb,
 }
+
+\definecolor{DarkBackground}{RGB}{66, 72, 78}
+\definecolor{KeywordColor}{RGB}{250, 140, 213}
 
 \lstset{
 	style = myCpp
@@ -325,7 +330,7 @@
 	\end{center}
 \end{frame}
 
-\begin{frame}{Performance comparison}
+\begin{frame}{Performance comparison on a \small i7-4770k$_{(\small224\,\text{GFLOPS})}$}
 	\input{figures/cmatrix_dgemm.tex}
 \end{frame}
 

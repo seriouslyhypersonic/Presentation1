@@ -6,12 +6,13 @@
 %
 \definecolor{mycolor1}{rgb}{0.00000,0.44700,0.74100}%
 \definecolor{mycolor2}{rgb}{0.85000,0.32500,0.09800}%
+\pgfplotsset{compat=1.13}
 %
 \begin{tikzpicture}
 
 \begin{axis}[%
 	width=0.8\textwidth,
-	height=0.65\textheight,
+	height=0.60\textheight,
 	% scaling
 	scale only axis,
 	% x-axis
@@ -26,7 +27,7 @@
 	ylabel={GFLOPS},
 	axis background/.style={fill=white},
 	% title
-	title={$C = \alpha A^T B^T + \beta C$ (Peak GFLOPS = 224)},
+	title={$C \leftarrow \alpha A^T B^T + \beta C$},
 	xmajorgrids, xminorgrids,
 	ymajorgrids,
 	legend style={legend cell align=left, align=left, draw=white!15!black}
