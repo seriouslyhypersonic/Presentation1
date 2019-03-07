@@ -44,9 +44,33 @@
 \colorlet{DarkGreen}{green!50!black}            % Comment color
 \colorlet{FunctionColor}{cyan}                  % Comment color
 \definecolor{MemberColor}{rgb}{0.6, 0.4, 0.8}   % Member color
+\colorlet{MacroColor}{yellow!70!red}            % Macro color
 
 \usepackage{listings}
+
+% Temporary fix -------------------------------------------------------------- %
+%\usepackage{lstlinebgrd} currently norworking
+% https://tex.stackexchange.com/questions/451532/recent-issues-with-lstlinebgrd-package-with-listings-after-the-latters-updates
+\makeatletter
+\let\old@lstKV@SwitchCases\lstKV@SwitchCases
+\def\lstKV@SwitchCases#1#2#3{}
+\makeatother
 \usepackage{lstlinebgrd}
+\makeatletter
+\let\lstKV@SwitchCases\old@lstKV@SwitchCases
+
+\lst@Key{numbers}{none}{%
+	\def\lst@PlaceNumber{\lst@linebgrd}%
+	\lstKV@SwitchCases{#1}%
+	{none:\\%
+		left:\def\lst@PlaceNumber{\llap{\normalfont
+				\lst@numberstyle{\thelstnumber}\kern\lst@numbersep}\lst@linebgrd}\\%
+		right:\def\lst@PlaceNumber{\rlap{\normalfont
+				\kern\linewidth \kern\lst@numbersep
+				\lst@numberstyle{\thelstnumber}}\lst@linebgrd}%
+	}{\PackageError{Listings}{Numbers #1 unknown}\@ehc}}
+\makeatother
+% ---------------------------------------------------------------------------- %
 
 % Dimensions
 \lstset{
@@ -70,12 +94,16 @@
     % Preprocessor directives
     directivestyle      = \bfseries\color{PreprocessorColor},
     % Overloaded operators
-	literate            = {ov=}{{{\bfseries\color{magenta}=}}}1
-	                      {ov+}{{{\bfseries\color{magenta}+}}}1
+	literate            = {oveq}{{{\bfseries\color{magenta}==}}}2
+						  {ov=}{{{\bfseries\color{magenta}=}}}1
+						  {ov+}{{{\bfseries\color{magenta}+}}}1
+	                      {ov-}{{{\bfseries\color{magenta}-}}}1
 	                      {ov*}{{{\bfseries\color{magenta}*}}}1,
 	keywordstyle        = [2]{\color{brown}},
-	otherkeywords       = {\&, ;, ::},
+	keywordstyle        = [3]{\color{MacroColor}},
+	otherkeywords       = {\&, ;, ::, static_assert, decltype, REQUIREMENT, REQUIRES, CONCEPT},
 	morekeywords        = [2]{;, ::},
+	morekeywords        = [3]{REQUIREMENT, REQUIRES, CONCEPT},
     linebackgroundcolor = {\ifodd\value{lstnumber}\color{istblue!10}
                            \else\color{gray!5}\fi},
     frame               = tb,
@@ -88,9 +116,16 @@
 	style = myCpp
 }
 
+% Words as code
+\newcommand{\code}[1]{{\scriptsize\texttt{#1}}}
+
 % Centered block with variable width
 \usepackage{tikz}
 \usepackage{pgfplots}
+
+% Hyper ref
+\usepackage{hyperref}
+\newcommand{\linkstyle}[1]{\textcolor{cyan}{\underline{#1}}}
 
 % ---------------------------------------------------------------------------- %
 % Outline
@@ -290,7 +325,128 @@
 
 \section{Concepts Library}
 
+\begin{frame}{C++ templates}
+	What are templates?
+	\begin{itemize}
+		\item Foundation of generic programming
+		\item Blueprint for creating a generic class or function
+	\end{itemize}
+	
+	What are their uses?
+	\begin{itemize}
+		\item Avoid repeating code
+		\item Generate code at compile-time
+		\item Perform compile-time computations
+	\end{itemize}
+
+	But really... why bother?
+	\begin{itemize}
+		\item \structure{C++ template magic}!
+		\begin{itemize}
+			\item[-] Static polymorphism (no overhead)
+			\item[-] Higher chances for compiler optimizations (\textit{e.g.} inlining)
+			\item[-] Create elegant interfaces with highly optimized implementations\\
+			\vspace{5pt}
+			and more...
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{C++ template metaprogramming (TMP)}
+	Object-oriented programming and TMP techniques allow OpenFOAM users to represent
+	\begin{equation}
+		\frac{\partial}{\partial t}\left(\rho\mathbf{U}\right) + \nabla\cdot\left(\phi\mathbf{U}\right) - \mu\nabla^2\mathbf{U} = -\nabla p,
+	\end{equation}
+	with a syntax that closely resembles the mathematical formulation:
+	\lstinputlisting{code/openfoam.cpp}
+	Note: what if $\mathbf{U}$ is not actually a vector field?
+\end{frame}
+
+\begin{frame}{Metaprogramming pitfalls}
+	Becoming a template wizard takes time (and a great deal of insanity):
+	\begin{itemize}
+		\item Many TMP techniques require knowledge of specific C++ idioms
+		\item Frequently, error messages are cryptic:
+		\begin{itemize}
+			\item[-] Most errors are triggered only on template instantiation
+			\item[-] Stack trace might be very deep
+			\item[-] Type names can be extremely long (\textit{e.g.} templates instantiations as template arguments)
+			\item[-] Overload resolution failure can produce a long list of candidates
+		\end{itemize} 
+	\end{itemize}
+
+	Inexperienced programmers can easily get stuck (and frustrated) but...
+	\begin{center}
+		\structure{Often, TMP errors are related to instantiation with an invalid type}
+	\end{center}
+\end{frame}
+
+\begin{frame}{C++ concepts}
+	Concepts are constraints that limit the set of arguments accepted as template parameters:
+	\begin{itemize}
+		\item Type-checking
+		\item Simplified compiler diagnostics
+		\item Select overloads/specializations based on type properties (introspection)
+	\end{itemize}
+	\vspace{5pt}
+	Concepts allows us to enforce an interface on a type without the overhead of inheritance.\\
+	\begin{flushright}
+		Example...
+	\end{flushright}
+\end{frame}
+
+\begin{frame}{Custom concept using the concepts library}
+	\lstinputlisting[basicstyle=\tiny]{code/concepts.cpp}
+\end{frame}
+
+\begin{frame}{Library summary}
+	\begin{itemize}
+		\item The concepts library is based on C++17
+		\item Models all the future C++20 concepts in header \code{<concepts>}
+		\begin{itemize}
+			\item[-] Core language concepts (\textit{e.g.} \code{Same}, \code{DerivedFrom}, \code{ConvertibleTo}, ...)
+			\item[-] Comparison concepts (\textit{e.g.} \code{Boolean}, \code{EqualityComparable}, ...)
+			\item[-] Object concepts (\textit{e.g.} \code{Movable}, \code{Copyable}, ...)
+			\item[-] Callable concepts (\textit{e.g.} \code{Invocable}, \code{Predicate}, ...)
+		\end{itemize}
+		\item Allows users to easily define new concepts
+		\item Uses TMP techniques (SFINAE \& detection idiom)
+		\item Introduces C++20 type traits ({\code{traits::common\_reference}})
+	\end{itemize}
+	\vspace{7pt}
+	\begin{center}
+		\scriptsize
+		\linkstyle{\url{https://github.com/seriouslyhypersonic/experimental_concepts}}
+	\end{center}
+\end{frame}
+
 \section{Linear Algebra Library}
+\begin{frame}{CMatrix library (MDO GUI)}
+Updates:
+\begin{itemize}
+	\item Build system changed to CMake
+	\item Created FindMKL cmake module
+	\item Works on Linux and Windows
+	\item Does not work on macOS (library bug)
+\end{itemize}
+
+Issues:
+\begin{itemize}
+	\item Probably pre-C++11
+	\item Inefficient:
+	\begin{itemize}
+		\item[-] No support for sparse matrices (?)
+		\item[-] Does not use rvalue references (unnecessary temporaries)
+		\item[-] Does not meet MKL memory alignment requirements (SSE, AVX)
+		\item[-] Eager evaluation generates unoptimized code
+	\end{itemize}
+	\item Interface is complex and lacks uniformity
+\end{itemize}
+	\begin{center}
+		\scriptsize
+		\linkstyle{\url{https://github.com/seriouslyhypersonic/CMatrix}}
+	\end{center}
+\end{frame}
 
 \begin{frame}[fragile]{Interface elegance \textit{vs} code efficiency}
 	Level 3 BLAS operations $T(n) = O(n^3)$\\
@@ -318,20 +474,28 @@
 	Due to the normal order of evaluation of the C++ language,
 	\lstinputlisting[linerange=12-12, firstnumber=12]{code/dgemm.cpp}
 	
-	actually generates:
-	\lstinputlisting[firstline=9, firstnumber=9]{code/operator_dgemm.cpp}
+	leads to the following execution context:
+	\lstinputlisting[firstline=9, firstnumber=9, escapechar=@]{code/operator_dgemm.cpp}
 \end{frame}
 
 \begin{frame}{Conventional operator overloading}
 	Overhead: \\
 	\begin{center}
-		\textcolor{red}{\textbf{7+}} function calls\\
+		\textcolor{red}{\textbf{12}} function calls\\
 		\textcolor{red}{\textbf{6}} temporaries
 	\end{center}
 \end{frame}
 
-\begin{frame}{Performance comparison on a \small i7-4770k$_{(\small224\,\text{GFLOPS})}$}
-	\input{figures/cmatrix_dgemm.tex}
+\begin{frame}{Performance comparison on a \small E5620$_{(\small76.8\,\text{GFLOPS, SSE4.2})}$} 
+	\input{figures/dgemm_xeon.tex}
+\end{frame}
+
+\begin{frame}{Performance comparison on a \small i7-4770k$_{(\small224\,\text{GFLOPS, AVX2})}$} 
+	\input{figures/dgemm_i7.tex}
+\end{frame}
+
+\begin{frame}{Expression templates}
+	How can we solve this?
 \end{frame}
 
 \end{document}

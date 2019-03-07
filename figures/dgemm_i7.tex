@@ -25,14 +25,16 @@
 	ymin=0,
 	ymax=150,
 	ylabel={GFLOPS},
-	axis background/.style={fill=white},
 	% title
 	title={$C \leftarrow \alpha A^T B^T + \beta C$},
+	% grid
 	xmajorgrids, xminorgrids,
 	ymajorgrids,
+	% legend
+	legend pos= north west,
 	legend style={legend cell align=left, align=left, draw=white!15!black}
 ]
-\addplot [color=mycolor1, line width=1pt]
+\addplot [color=istblue, line width=1pt]
   table[row sep=crcr]{%
 2	0.0689655172413793\\
 3	0.21\\
@@ -72,7 +74,7 @@
 };
 \addlegendentry{\scriptsize MKL}
 
-\addplot [color=mycolor2, line width=1pt]
+\addplot [color=red, line width=1pt]
   table[row sep=crcr]{%
 2	0.0384615384615385\\
 3	0.108620689655172\\

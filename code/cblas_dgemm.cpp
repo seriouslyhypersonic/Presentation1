@@ -3,7 +3,7 @@
 using DMatrix = Matrix<double>;
 
 const double alpha = 42;
-const double beta = 1.618
+const double beta = 1.618;
 
 void example() {
     const std::size_t dim = 100;
