@@ -280,14 +280,14 @@
 	\end{columns}
 \end{frame}
 
-\begin{frame}{Choice of programming language}
-	C++ (hard, lack of knowledge, modern features)\\
-	Use good well tested libraries (boost) - portability
-\end{frame}
+%\begin{frame}{Choice of programming language}
+%	C++ (hard, lack of knowledge, modern features)\\
+%	Use good well tested libraries (boost) - portability
+%\end{frame}
 
-\begin{frame}{WIP}
-	Life cycle, architecture, design all depend on the \alert{requirements}
-\end{frame}
+%\begin{frame}{WIP}
+%	Life cycle, architecture, design all depend on the \alert{requirements}
+%\end{frame}
 
 \subsection{Code development}
 \begin{frame}{Build system}
@@ -316,12 +316,31 @@
 \end{frame}
 
 \begin{frame}{Testing}
-	content...
+	\begin{columns}[onlytextwidth]
+		\column{0.55\linewidth}
+		\begin{quote}
+			\enquote{Beware of bugs in the above code; I have only proved it correct, not tried it.}\\
+			\attrib{Donald Knuth}
+		\end{quote}
+		\begin{itemize}
+			\item Testing is essential when collaborating
+			\item Can prevent reviewing bad code
+			\item Should keep up with development
+			\item Write once, test many
+			\item Popular frameworks:
+			\begin{itemize}
+				\item[-] Google Test (on the right)
+				\item[-] catch2 (header only)
+			\end{itemize}
+		\end{itemize}
+		\column{0.45\linewidth}
+		\includegraphics[keepaspectratio=true, width=1\linewidth]{figures/gtest.png}
+	\end{columns}
 \end{frame}
 
-\begin{frame}{Benchmarking}
-	content...
-\end{frame}
+%\begin{frame}{Benchmarking}
+%	content...
+%\end{frame}
 
 \section{Concepts Library}
 
@@ -494,8 +513,55 @@ Issues:
 	\input{figures/dgemm_i7.tex}
 \end{frame}
 
+\begin{frame}{Is there a solution?}
+	The problem is that the compiler is too eager when evaluating the rhs of
+	\lstinputlisting[linerange=12-12, firstnumber=12]{code/dgemm.cpp}
+	What do we need?
+	\begin{itemize}
+		\item Bypass the normal order of evaluation of the C++ language
+		\item An expression now represents a computation \structure{at compile time}
+		\item The result is a structure representing that computation
+		\item Expressions are evaluated only as needed (lazy evaluation)
+	\end{itemize}
+	What will the structure look like?
+	\lstinputlisting[linerange=12-17, firstnumber=12]{code/expression_templates.cpp}
+\end{frame}
+
+\begin{frame}{How is it done?}
+	We need \structure{logic} to instruct the \structure{compiler} how to \structure{build} the structure
+	\begin{center}
+		$\Rightarrow$ we need TMP!\\
+		
+		(Because we're using TMP, the structure is really just a type)
+	\end{center}
+	This technique is know as \structure{expression templates} (ET):
+	\begin{itemize}
+		\item We'll abuse C++'s type system
+		\item Use expressions to build a structure (type) during compile time
+		\item Use that type to perform optimizations
+		\item Only evaluate when needed (assignment triggers evaluation)
+	\end{itemize}
+\end{frame}
+
 \begin{frame}{Expression templates}
-	How can we solve this?
+	The machinery behind expression templates is complex:
+	\begin{itemize}
+		\item Curiously recurring template pattern
+		\item Recursing down the expression tree must be done efficiently
+		\item Different type of optimizations:
+		\begin{itemize}
+			\item[-] Recursive nature (\textit{e.g.} loop fusion)
+			\item[-] Specializations (\textit{e.g.} calls to MKL functions)
+		\end{itemize}
+	\end{itemize}
+
+	Once implemented:
+	\begin{itemize}
+		\item Elegant interface generates efficient code
+		\item ET can be used to accelerate automatic differentiation
+		\item Will be possible to embed DSLs (\textit{à la} OpenFOAM)
+		\item Optimizations and parsing happens at compile time
+	\end{itemize}
 \end{frame}
 
 \end{document}
